@@ -20,7 +20,11 @@ namespace Repository
         }
         public PagedList<Owner> GetAllOwners(OwnerParameters ownerParameters)
         {
-            return PagedList<Owner>.ToPagedList(FindAll().OrderBy(on => on.Name),
+            var owners = FindByCondition(o => o.DOB.Year >= ownerParameters.MinYearOfBirth &&
+                                o.DOB.Year <= ownerParameters.MaxYearOfBirth)
+                            .OrderBy(on => on.Name);
+
+            return PagedList<Owner>.ToPagedList(owners,
                 ownerParameters.PageNumber,
                 ownerParameters.PageSize);
         }
