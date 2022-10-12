@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities;
+using Entities.Helpers;
 using Entities.Model;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,18 @@ namespace Repository
         {
 
         }
-        public IEnumerable<Account> AccountsByOwner(Guid ownerId)
+        public PagedList<Account> AccountsByOwner(Guid ownerId, AccountParameters parameters)
         {
-            return FindByCondition(a => a.OwnerId.Equals(ownerId)).ToList();
+            var accounts = FindByCondition(a => a.OwnerId.Equals(ownerId));
+
+            return PagedList<Account>.ToPagedList(accounts,
+                parameters.PageNumber,
+                parameters.PageSize);
+        }
+
+        public IEnumerable<Account> AccountsByOwner2(Guid ownerId)
+        {
+            return FindByCondition(a => a.OwnerId.Equals(ownerId));
         }
     }
 }
