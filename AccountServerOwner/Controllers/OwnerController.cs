@@ -4,6 +4,7 @@ using Entities.DataTransferObjects;
 using Entities.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace AccountServerOwner.Controllers
 {
@@ -21,14 +22,33 @@ namespace AccountServerOwner.Controllers
             _mapper = mapper;
         }
         [HttpGet]
-        public IActionResult GetAllOwners()
+        public IActionResult GetAllOwners([FromQuery] OwnerParameters ownerParameters)
         {
+            if (!ownerParameters.ValidYearRange)
+            {
+                return BadRequest("Max year of birth cannot be less than min year of birth");
+            }
+
             try
             {
-                var owners = _repository.Owner.GetAllOwners();
+                var owners = _repository.Owner.GetAllOwners(ownerParameters);
                 _logger.LogInfo($"Returned all owners from database.");
-
+                _logger.LogInfo($"Returned {owners.Count()} owners from database.");//doing the paging need to learn how to use the dto methods// already done tho hahahaa
                 var ownersResult = _mapper.Map<IEnumerable<OwnerDto>>(owners);
+
+                var metadata = new
+                {
+                    owners.TotalCount,
+                    owners.PageSize,
+                    owners.CurrentPage,
+                    owners.TotalPages,
+                    owners.HasNext,
+                    owners.HasPrevious
+                };
+
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+                _logger.LogInfo($"Returned {owners.TotalCount} owners from database.");
+
                 return Ok(ownersResult);
             }
             catch (Exception ex)
@@ -156,7 +176,7 @@ namespace AccountServerOwner.Controllers
                     _logger.LogError($"Owner with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                if (_repository.Account.AccountsByOwner(id).Any())
+                if (_repository.Account.AccountsByOwner2(id).Any())
                 {
                     _logger.LogError($"Cannot delete owner with id: {id}. It has related accounts. Delete those accounts first");
                     return BadRequest("Cannot delete owner. It has related accounts. Delete those accounts first");

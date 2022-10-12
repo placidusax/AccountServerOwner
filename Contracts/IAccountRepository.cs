@@ -1,4 +1,5 @@
-﻿using Entities.Model;
+﻿using Entities.Helpers;
+using Entities.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Contracts
 {
     public interface IAccountRepository : IRepositoryBase<Account>
     {
-        IEnumerable<Account> AccountsByOwner(Guid ownerId);
+        PagedList<Account> AccountsByOwner(Guid ownerId, AccountParameters parameters);
+        IEnumerable<Account> AccountsByOwner2(Guid ownerId);
     }
 }

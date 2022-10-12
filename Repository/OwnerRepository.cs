@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities;
+using Entities.Helpers;
 using Entities.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,11 +18,15 @@ namespace Repository
         {
 
         }
-        public IEnumerable<Owner> GetAllOwners()
+        public PagedList<Owner> GetAllOwners(OwnerParameters ownerParameters)
         {
-            return FindAll()
-                .OrderBy(ow => ow.Name)
-                .ToList();
+            var owners = FindByCondition(o => o.DOB.Year >= ownerParameters.MinYearOfBirth &&
+                                o.DOB.Year <= ownerParameters.MaxYearOfBirth)
+                            .OrderBy(on => on.Name);
+
+            return PagedList<Owner>.ToPagedList(owners,
+                ownerParameters.PageNumber,
+                ownerParameters.PageSize);
         }
         public Owner GetOwnerById(Guid ownerId)
         {

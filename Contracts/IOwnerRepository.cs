@@ -1,4 +1,5 @@
-﻿using Entities.Model;
+﻿using Entities.Helpers;
+using Entities.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Contracts
 {
     public interface IOwnerRepository : IRepositoryBase<Owner>
     {
-        IEnumerable<Owner> GetAllOwners();
+        PagedList<Owner> GetAllOwners(OwnerParameters ownerParameters);
         Owner GetOwnerById(Guid ownerId);
         Owner GetOwnerWithDetails(Guid ownerId);
         void CreateOwner(Owner owner);
